@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="IeradumuParvaldnieks.ArhivetieIeradumiPage"
+    Title="Arhivētie ieradumi">
+
+    <VerticalStackLayout
+        Padding="20"
+        Spacing="15">
+
+        <Label
+            Text="Arhivētie ieradumi"
+            FontSize="28"
+            FontAttributes="Bold" />
+
+        <CollectionView x:Name="ArhivetoIeradumuSaraksts">
+
+            <CollectionView.EmptyView>
+                <Label
+                    Text="Nav arhivētu ieradumu."
+                    HorizontalOptions="Center" />
+            </CollectionView.EmptyView>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+
+                    <Border
+                        StrokeThickness="1"
+                        Padding="15"
+                        Margin="0,5">
+
+                        <VerticalStackLayout Spacing="5">
+
+                            <Label
+                                Text="{Binding Nosaukums}"
+                                FontSize="20"
+                                FontAttributes="Bold" />
+
+                            <Label
+                                Text="{Binding Apraksts}" />
+
+                            <Label
+                                Text="{Binding Statuss, StringFormat='Statuss: {0}'}" />
+
+                            <Button
+                                Text="Atjaunot"
+                                CommandParameter="{Binding .}"
+                                Clicked="Atjaunot_Clicked" />       
+
+                        </VerticalStackLayout>
+
+                    </Border>
+
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+
+        </CollectionView>
+
+    </VerticalStackLayout>
+
+</ContentPage>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:sys="clr-namespace:System;assembly=System.Runtime"
+    x:Class="IeradumuParvaldnieks.IeradumaDetaljasPage"
+    Title="Ieraduma detaļas">
+
+    <VerticalStackLayout
+        Padding="20"
+        Spacing="15">
+
+        <Label
+            Text="{Binding Nosaukums}"
+            FontSize="28"
+            FontAttributes="Bold" />
+
+        <Label Text="Apraksts:" />
+
+        <Label
+            Text="{Binding Apraksts}"
+            FontSize="16" />
+
+        <Label Text="Statuss:" />
+
+        <Label
+            Text="{Binding Statuss}"
+            FontSize="16" />
+
+        <Label Text="Atkārtošanās:" />
+
+        <Label
+            Text="{Binding Atkartosana.Biezums}"
+            FontSize="16" />
+
+        <Label
+            x:Name="SodienLabel"
+            FontSize="16"
+            FontAttributes="Bold" />
+
+        <Label
+            Text="Izveleties izpildes datumu:"
+            FontAttributes="Bold" />
+
+        <DatePicker
+            x:Name="IzpildesDatumsPicker"
+            MaximumDate="{x:Static sys:DateTime.Today}" />
+        
+        <Button
+            Text="Atzimet izveletaja datuma"
+            Clicked="AtzimetDatumu_Clicked" />
+        
+        <Button
+            Text="Labot ieradumu"
+            Clicked="Labot_Clicked" />
+
+        <Button
+            Text="Arhivēt ieradumu"
+            Clicked="Arhivet_Clicked" />
+        
+    </VerticalStackLayout>
+
+</ContentPage>

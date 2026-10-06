@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="IeradumuParvaldnieks.MainPage"
+    Title="Ieradumi">
+
+    <Grid
+        Padding="20"
+        RowDefinitions="Auto,Auto,*">
+
+        <Label
+            Grid.Row="0"
+            Text="Mani ieradumi"
+            FontSize="28"
+            FontAttributes="Bold"
+            Margin="0,0,0,15" />
+        
+        <Grid
+        Grid.Row="1"
+        ColumnDefinitions="*,*"
+        ColumnSpacing="10"
+        Margin="0,0,0,15">
+
+            <Button
+                Grid.Column="0"
+                Text="+ Jauns ieradums"
+                Clicked="JaunsIeradums_Clicked"/>
+
+            <Button
+                Grid.Column="1"
+                Text="Arhivetie"
+                Clicked="Arhivetie_Clicked" />
+                
+        </Grid>
+
+        <CollectionView
+    x:Name="IeradumuSaraksts"
+    Grid.Row="2"
+    SelectionMode="Single"
+    SelectionChanged="IeradumuSaraksts_SelectionChanged">
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+
+                    <Border
+                StrokeThickness="1"
+                Padding="15"
+                Margin="0,5">
+
+                        <VerticalStackLayout Spacing="8">
+
+                            <Label
+                        Text="{Binding Nosaukums}"
+                        FontSize="20"
+                        FontAttributes="Bold" />
+
+                            <Label
+                        Text="{Binding Apraksts}"
+                        FontSize="14" />
+
+                            <Label
+                        Text="{Binding Statuss, StringFormat='Statuss: {0}'}" />
+
+                            <Label
+                        Text="{Binding IzpildesTeksts}"
+                        FontAttributes="Bold" />
+
+                            <Button
+                        Text="Atzīmēt kā izpildītu"
+                        IsEnabled="{Binding VarAtzimet}"
+                        CommandParameter="{Binding Ieradums}"
+                        Clicked="AtzimetIzpilditu_Clicked" />
+
+                        </VerticalStackLayout>
+
+                    </Border>
+
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+
+        </CollectionView>
+    </Grid>
+
+</ContentPage>

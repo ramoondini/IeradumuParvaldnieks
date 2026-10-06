@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="IeradumuParvaldnieks.IeradumaRedigesanaPage"
+    Title="Jauns ieradums">
+
+    <ScrollView>
+        <VerticalStackLayout
+            Padding="20"
+            Spacing="15">
+
+            <Label
+                Text="Jauns ieradums"
+                FontSize="28"
+                FontAttributes="Bold" />
+
+            <Label Text="Nosaukums" />
+
+            <Entry
+                x:Name="NosaukumsEntry"
+                Placeholder="Ievadi ieraduma nosaukumu" />
+
+            <Label Text="Apraksts" />
+
+            <Editor
+                x:Name="AprakstsEditor"
+                Placeholder="Ievadi aprakstu"
+                HeightRequest="100" />
+
+            <Label Text="Atkārtošanās" />
+
+            <Picker
+                x:Name="BiezumsPicker"
+                Title="Izvēlies biežumu">
+
+                <Picker.Items>
+                    <x:String>Katru dienu</x:String>
+                    <x:String>Katru nedēļu</x:String>
+                    <x:String>Katru mēnesi</x:String>
+                </Picker.Items>
+
+            </Picker>
+
+            <Button
+                Text="Saglabāt"
+                Clicked="Saglabat_Clicked" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

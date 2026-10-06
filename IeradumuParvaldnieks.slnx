@@ -1,3 +1,9 @@
 <Solution>
-  <Project Path="IeradumuParvaldnieks/IeradumuParvaldnieks.csproj" />
+  <Folder Name="/Solution Items/">
+    <File Path="TextFile1.txt" />
+  </Folder>
+  <Project Path="IeradumuParvaldnieks.Console/IeradumuParvaldnieks.Console.csproj" />
+  <Project Path="IeradumuParvaldnieks.Domain/IeradumuParvaldnieks.Domain.csproj" />
+  <Project Path="IeradumuParvaldnieks.Shared/IeradumuParvaldnieks.Shared.csproj" />
+  <Project Path="IeradumuParvaldnieks/IeradumuParvaldnieks.csproj" Id="482d2f94-5922-4183-927f-2eab0efbe442" />
 </Solution>
