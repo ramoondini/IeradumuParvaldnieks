@@ -1,0 +1,9 @@
+﻿POST https://localhost7239/ieradumi
+Content-Type: application/json
+
+{
+  "lietotajaId": "user1",
+  "nosaukums": "Lasīt grāmatu",
+  "apraksts": "Lasīt 20 minūtes dienā",
+  "atkartosana": null
+}
