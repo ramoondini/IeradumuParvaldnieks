@@ -6,11 +6,11 @@ using System.Security.Cryptography.X509Certificates;
 namespace IeradumuParvaldnieks.Application.Services
 {
 
-    public class IeradumuAppicationService //Serviss ar galvenajām ieradumu darbībām
+    public class IeradumuApplicationService //Serviss ar galvenajām ieradumu darbībām
     {
         private readonly IIeradumuRepository repository;
 
-        public IeradumuAppicationService(IIeradumuRepository repository)
+        public IeradumuApplicationService(IIeradumuRepository repository)
         {
             this.repository = repository;
         }

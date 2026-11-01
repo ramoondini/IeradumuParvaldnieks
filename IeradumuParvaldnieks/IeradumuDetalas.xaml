@@ -45,6 +45,7 @@
 
         <DatePicker
             x:Name="IzpildesDatumsPicker"
+            Format="dd.MM.yyyy" 
             MaximumDate="{x:Static sys:DateTime.Today}" />
         
         <Button

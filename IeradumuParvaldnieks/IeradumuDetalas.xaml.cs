@@ -1,6 +1,8 @@
 using IeradumuParvaldnieks.Domain.Entities;
 using IeradumuParvaldnieks.Domain.Enums;
 using IeradumuParvaldnieks.Services;
+using Microsoft.Maui;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace IeradumuParvaldnieks
 {
@@ -24,27 +26,52 @@ namespace IeradumuParvaldnieks
                 : "Nav izpildīts šodien";
         }
 
-        private async void Arhivet_Clicked(object? sender, EventArgs e)//arhive izveleto ieradumu
+
+        private async void Arhivet_Clicked(object? sender, EventArgs e)
         {
-            ieradums.Statuss = IeradumaStatuss.Arhivets;
-            ieradums.Atjauninats = DateTime.Now;
+            // Iegūst atvērto ieradumu
+            if (BindingContext is not Ieradums ieradums)
+                return;
 
-            List<Ieradums> ieradumi =//ielade visus ieradumus
-                await ieradumuService.IeladetIeradumusAsync();
-
-            Ieradums? saglabataisIeradums =//atrod izveleto ieradumu saraksta pec id
-                ieradumi.Find(i => i.Id == ieradums.Id);
-
-            if (saglabataisIeradums != null)
+            try
             {
-                saglabataisIeradums.Statuss = IeradumaStatuss.Arhivets;//maina statusu uz arhivetu
-                saglabataisIeradums.Atjauninats = DateTime.Now;
+                // Iegūst API servisu
+                var servisi = IPlatformApplication.Current?.Services;
+
+                if (servisi == null)
+                {
+                    await DisplayAlertAsync(
+                        "Kļūda",
+                        "MAUI servisi nav pieejami.",
+                        "OK");
+                    return;
+                }
+
+                var apiService =
+                    servisi.GetRequiredService<IeradumuApiService>();
+
+                // Arhivē ieradumu serverī
+                await apiService.ArhivetAsync(ieradums.Id);
+
+                // Atgriežas galvenajā lapā
+                await Navigation.PopAsync();
             }
-
-            await ieradumuService.SaglabatIeradumusAsync(ieradumi);//saglaba izmainas
-
-            await Navigation.PopAsync();//atgriezas atpakal uz ieprieksejo lapu
+            catch (HttpRequestException)
+            {
+                await DisplayAlertAsync(
+                    "Kļūda",
+                    "Neizdevās arhivēt ieradumu caur API.",
+                    "OK");
+            }
+            catch (TaskCanceledException)
+            {
+                await DisplayAlertAsync(
+                    "Kļūda",
+                    "API serveris neatbild.",
+                    "OK");
+            }
         }
+
 
         private async void Labot_Clicked(object? sender, EventArgs e)//atver lapu ieraduma redigesanai
         {
@@ -52,46 +79,79 @@ namespace IeradumuParvaldnieks
                 new IeradumaRedigesanaPage(ieradums));
         }
 
-        private async void AtzimetDatumu_Clicked(object? sender, EventArgs e)//atzimet ieradumu ka izpilditu uz noteikto datumu
+
+        private async void AtzimetDatumu_Clicked(object? sender, EventArgs e)
         {
-            DateTime datums = IzpildesDatumsPicker.Date ?? DateTime.Today;
-
-            List<Ieradums> visiIeradumi =
-                await ieradumuService.IeladetIeradumusAsync();
-
-            Ieradums? saglabataisIeradums =
-                visiIeradumi.Find(i => i.Id == ieradums.Id);
-
-            if (saglabataisIeradums == null)
+            // Iegūst atvērto ieradumu
+            if (BindingContext is not Ieradums ieradums)
                 return;
+
+            // Iegūst lietotāja izvēlēto datumu
+            DateTime datums = IzpildesDatumsPicker.Date ?? DateTime.Today;
 
             try
             {
-                saglabataisIeradums.AtzimetKaIzpilditu(datums);//atzime ieradumu ka izpilditu uz noteikto datumu
+                // Iegūst API servisu
+                var servisi = IPlatformApplication.Current?.Services;
 
-                await ieradumuService
-                    .SaglabatIeradumusAsync(visiIeradumi);
+                if (servisi == null)
+                {
+                    await DisplayAlertAsync(
+                        "Kļūda",
+                        "MAUI servisi nav pieejami.",
+                        "OK");
+                    return;
+                }
 
-                ieradums.Izpildes = saglabataisIeradums.Izpildes;
+                var apiService =
+                    servisi.GetRequiredService<IeradumuApiService>();
 
-                SodienLabel.Text =
-                    ieradums.IrPabeigts(DateTime.Today)
-                        ? "Šodien izpildīts"
-                        : "Nav izpildīts šodien";
+                // Atzīmē izpildi caur API
+                await apiService.AtzimetIzpildiAsync(ieradums.Id, datums);
+
+                // Ielādē atjauninātos datus no API
+                List<Ieradums> visiIeradumi =
+                    await apiService.IegutVisuAsync("user1");
+
+                Ieradums? atjauninataisIeradums =
+                    visiIeradumi.FirstOrDefault(i => i.Id == ieradums.Id);
+
+                if (atjauninataisIeradums != null)
+                {
+                    BindingContext = atjauninataisIeradums;
+
+                    // Atjauno šodienas izpildes informāciju
+                    SodienLabel.Text =
+                        atjauninataisIeradums.IrPabeigts(DateTime.Today)
+                            ? "Šodien izpildīts"
+                            : "Šodien nav izpildīts";
+                }
 
                 await DisplayAlertAsync(
-                    "Saglabāts",
-                    $"Ieradums atzīmēts kā izpildīts {datums:dd.MM.yyyy}.", //pazino par veiksmigu ieraduma atzimesanu
+                    "Veiksmīgi",
+                    "Ieraduma izpilde atzīmēta!",
                     "OK");
             }
-            catch (InvalidOperationException ex)//kluda ja piemeram ieradums jau atzimets noteiktaja datumaa
+            catch (InvalidOperationException ex)
+            {
+                await DisplayAlertAsync("Kļūda", ex.Message, "OK");
+            }
+            catch (HttpRequestException)
             {
                 await DisplayAlertAsync(
                     "Kļūda",
-                    ex.Message,
+                    "Neizdevās sazināties ar API.",
+                    "OK");
+            }
+            catch (TaskCanceledException)
+            {
+                await DisplayAlertAsync(
+                    "Kļūda",
+                    "API serveris neatbild.",
                     "OK");
             }
         }
+
 
     }
 }

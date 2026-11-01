@@ -2,6 +2,7 @@
 using IeradumuParvaldnieks.Domain.Enums;
 using IeradumuParvaldnieks.Models;
 using IeradumuParvaldnieks.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace IeradumuParvaldnieks
 {
@@ -13,8 +14,21 @@ namespace IeradumuParvaldnieks
 
         private async void Arhivetie_Clicked(object? sender, EventArgs e)//atver arhiveto ieradumu lapu
         {
-            await Navigation.PushAsync(
-                new ArhivetieIeradumiPage());
+            var servisi = Handler?.MauiContext?.Services;
+
+            if (servisi == null)
+            {
+                await DisplayAlertAsync(
+                    "Kļūda",
+                    "Neizdevās iegūt API servisu",
+                     "OK");
+                return;
+            }
+            
+            var apiService = servisi.GetRequiredService<IeradumuApiService>();
+
+            await Navigation.PushAsync(new ArhivetieIeradumiPage(apiService));
+
         }
 
         public MainPage()
@@ -33,49 +47,81 @@ namespace IeradumuParvaldnieks
 
         private async Task IeladetIeradumus()//ielade visus ieradumus un parada tikai aktivie
         {
-            visiIeradumi =
-                await ieradumuService.IeladetIeradumusAsync();
-
-            const string lietotajaId = "user2";//pasreizejais lietotajaid, var nomainit uz user1, lai redzet otra lietotaja ieradumus
-
-            List<IeradumsSarakstaModelis> aktivieIeradumi =//atlasa tikai konkreta lietotaja aktivos ieradumus
-                visiIeradumi
-                    .Where(i => i.LietotajaId == lietotajaId && i.Statuss == IeradumaStatuss.Aktivs)
-                    .Select(i => new IeradumsSarakstaModelis(i))
-                    .ToList();
-
-            IeradumuSaraksts.ItemsSource = aktivieIeradumi;//ieradumi saraksta
-        }
-
-        private async void AtzimetIzpilditu_Clicked(//atzime ieradumu ka izpilditu sodien
-            object sender,
-            EventArgs e)
-        {
-            Button poga = (Button)sender;//panem nospiestajai poga piesaistito ieradumu
-
-            Ieradums? ieradums =
-                poga.CommandParameter as Ieradums;
-
-            if (ieradums == null)
-            {
-                return;
-            }
-
             try
             {
-                ieradums.AtzimetKaIzpilditu(DateTime.Today);//atzime ka izpilditu sodien
+                const string lietotajaId = "user1";
 
-                await ieradumuService//saglaba izmainas
-                    .SaglabatIeradumusAsync(visiIeradumi);
+                var servisi = Handler?.MauiContext?.Services;
 
-                await IeladetIeradumus();//parlade sarakstu
+                if (servisi == null)
+                    return;
+
+                var apiService = servisi.GetRequiredService<IeradumuApiService>();
+
+                visiIeradumi = await apiService.IegutVisuAsync(lietotajaId);
+
+                List<IeradumsSarakstaModelis> aktivieIeradumi = visiIeradumi.Where(i => i.LietotajaId == lietotajaId && i.Statuss == IeradumaStatuss.Aktivs).Select(i => new IeradumsSarakstaModelis(i)).ToList();
+
+                IeradumuSaraksts.ItemsSource = aktivieIeradumi;
             }
-            catch (InvalidOperationException ex)//kludas pazinojums
+            catch (HttpRequestException)
             {
                 await DisplayAlertAsync(
                     "Kļūda",
-                    ex.Message,
+                    "Neizdevās savienoties ar API serveri.",
                     "OK");
+            }
+            catch (TaskCanceledException)
+            {
+                await DisplayAlertAsync(
+                    "Kļūda",
+                    "Savienojuma laiks beidzies.",
+                    "OK");
+            }
+        
+        }
+
+        // Atzīmē ieradumu kā izpildītu šodien
+        private async void AtzimetIzpilditu_Clicked(object? sender, EventArgs e)
+        {
+            if (sender is not Button poga)
+                return;
+
+            Ieradums? ieradums = poga.CommandParameter as Ieradums;
+
+            if (ieradums == null)
+                return;
+
+            try
+            {
+                var servisi = Handler?.MauiContext?.Services;
+
+                if (servisi == null)
+                    return;
+
+                var apiService =
+                    servisi.GetRequiredService<IeradumuApiService>();
+
+                // Saglabā izpildi serverī
+                await apiService.AtzimetIzpildiAsync(
+                    ieradums.Id, DateTime.Today);
+
+                // Atjauno sarakstu pēc izpildes
+                await IeladetIeradumus();
+            }
+            catch (InvalidOperationException ex)
+            {
+                await DisplayAlertAsync("Kļūda", ex.Message, "OK");
+            }
+            catch (HttpRequestException)
+            {
+                await DisplayAlertAsync(
+                    "Kļūda", "Neizdevās sazināties ar API.", "OK");
+            }
+            catch (TaskCanceledException)
+            {
+                await DisplayAlertAsync(
+                    "Kļūda", "API serveris neatbild.", "OK");
             }
         }
         private async void JaunsIeradums_Clicked(object? sender, EventArgs e)//parada jauna ieraduma izveides lapu

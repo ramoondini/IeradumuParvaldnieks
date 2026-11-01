@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using IeradumuParvaldnieks.Services;
 
 namespace IeradumuParvaldnieks
 {
@@ -18,6 +19,13 @@ namespace IeradumuParvaldnieks
 #if DEBUG
     		builder.Logging.AddDebug();
 #endif
+
+            builder.Services.AddSingleton<HttpClient>(_ => new HttpClient
+            {
+                BaseAddress = new Uri("https://localhost:7239/")
+            });
+
+            builder.Services.AddTransient<IeradumuApiService>();
 
             return builder.Build();
         }

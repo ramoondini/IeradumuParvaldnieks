@@ -1,6 +1,8 @@
 using IeradumuParvaldnieks.Domain.Entities;
 using IeradumuParvaldnieks.Domain.Enums;
 using IeradumuParvaldnieks.Services;
+using Microsoft.Maui;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace IeradumuParvaldnieks
 {
@@ -45,71 +47,96 @@ namespace IeradumuParvaldnieks
             }
         }
 
-        private async void Saglabat_Clicked(object? sender, EventArgs e)//saglaba jaunu vai labotu ieradumu
+
+        private async void Saglabat_Clicked(object? sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(NosaukumsEntry.Text))//parbauda vai nosaukums nav tukss
+            string nosaukums = NosaukumsEntry.Text?.Trim() ?? "";
+            string? apraksts = AprakstsEditor.Text?.Trim();
+
+            // Pārbauda nosaukumu
+            if (string.IsNullOrWhiteSpace(nosaukums))
             {
                 await DisplayAlertAsync(
                     "Kļūda",
-                    "Ieraduma nosaukums nedrīkst būt tukšs.",
+                    "Ievadi ieraduma nosaukumu.",
                     "OK");
-
                 return;
             }
 
-            AtkartojumaBiezums biezums =//nosaka izveleto atkartosanas biezumu
-                AtkartojumaBiezums.KatruDienu;
-
-            if (BiezumsPicker.SelectedItem?.ToString() == "Katru nedēļu")
+            // Nosaka atkārtošanās biežumu
+            AtkartojumaBiezums biezums = BiezumsPicker.SelectedIndex switch
             {
-                biezums = AtkartojumaBiezums.KatruNedelu;
-            }
-            else if (BiezumsPicker.SelectedItem?.ToString() == "Katru mēnesi")
-            {
-                biezums = AtkartojumaBiezums.KatruMenesi;
-            }
+                1 => AtkartojumaBiezums.KatruNedelu,
+                2 => AtkartojumaBiezums.KatruMenesi,
+                _ => AtkartojumaBiezums.KatruDienu
+            };
 
-            List<Ieradums> ieradumi = await ieradumuService.IeladetIeradumusAsync();
-
-            if (redigejamaisIeradums == null)
+            Atkartosana atkartosana = new Atkartosana
             {
-                Ieradums jaunsIeradums = new Ieradums//izveido jaunu ieradumu
+                Biezums = biezums,
+                Intervals = 1
+            };
+
+            try
+            {
+                // Iegūst jau reģistrēto API servisu
+                var servisi = IPlatformApplication.Current?.Services;
+
+                if (servisi == null)
                 {
-                    Id = Guid.NewGuid(),
-                    LietotajaId = "user1",
-                    Nosaukums = NosaukumsEntry.Text,
-                    Apraksts = AprakstsEditor.Text,
-                    Statuss = IeradumaStatuss.Aktivs,
-                    Izveidots = DateTime.Now,
-                    Atjauninats = DateTime.Now,
-                    Atkartosana = new Atkartosana
-                    {
-                        Biezums = biezums,
-                        Intervals = 1
-                    }
-                };
-                ieradumi.Add(jaunsIeradums);
-            }
-            else
-            {
-                Ieradums? saglabataisIeradums =//atrod redigejamu ieradumu pec id
-                    ieradumi.Find(i => i.Id == redigejamaisIeradums.Id);
-
-                if (saglabataisIeradums != null)//atjauno ieraduma datus
-                {
-                    saglabataisIeradums.Nosaukums = NosaukumsEntry.Text;
-                    saglabataisIeradums.Apraksts = AprakstsEditor.Text;
-                    saglabataisIeradums.Atjauninats = DateTime.Now;
-                    saglabataisIeradums.Atkartosana = new Atkartosana
-                    {
-                        Biezums = biezums,
-                        Intervals = 1
-                    };
+                    await DisplayAlertAsync(
+                        "Kļūda",
+                        "MAUI servisi nav pieejami.",
+                        "OK");
+                    return;
                 }
-            }
 
-            await ieradumuService.SaglabatIeradumusAsync(ieradumi);//saglaba izmainas un atgriezas iepriekseja lapaa
-            await Navigation.PopAsync();
+                var apiService =
+                    servisi.GetRequiredService<IeradumuApiService>();
+
+                if (redigejamaisIeradums == null)
+                {
+                    // Izveido jaunu ieradumu caur API
+                    await apiService.IzveidotAsync(
+                        nosaukums,
+                        apraksts,
+                        atkartosana);
+                }
+                else
+                {
+                    // Labo esošu ieradumu caur API
+                    await apiService.LabotAsync(
+                        redigejamaisIeradums.Id,
+                        nosaukums,
+                        apraksts,
+                        atkartosana);
+                }
+
+                // Atgriežas iepriekšējā lapā
+                await Navigation.PopAsync();
+            }
+            catch (HttpRequestException)
+            {
+                await DisplayAlertAsync(
+                    "Kļūda",
+                    "Neizdevās sazināties ar API serveri.",
+                    "OK");
+            }
+            catch (TaskCanceledException)
+            {
+                await DisplayAlertAsync(
+                    "Kļūda",
+                    "API serveris neatbild.",
+                    "OK");
+            }
+            catch (InvalidOperationException ex)
+            {
+                await DisplayAlertAsync(
+                    "Kļūda",
+                    ex.Message,
+                    "OK");
+            }
         }
+
     }
 }

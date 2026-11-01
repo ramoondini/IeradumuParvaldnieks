@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();// OpenAPI atbalsts
 
 builder.Services.AddSingleton<IIeradumuRepository, AtminasIeradumuRepository>();//Ieradumu Glabātuve
-builder.Services.AddScoped<IeradumuAppicationService>();//Ieradumu servisi
+builder.Services.AddScoped<IeradumuApplicationService>();//Ieradumu servisi
 
 var app = builder.Build();
 
@@ -19,14 +19,14 @@ if (app.Environment.IsDevelopment()) // OpenAPI izstrādes režīms
 
 app.UseHttpsRedirection();
 
-app.MapGet("/ieradumi", async (string lietotajaid, IeradumuAppicationService service) => // iegūst konkrēta lietotāja ieradumus
+app.MapGet("/ieradumi", async (string lietotajaid, IeradumuApplicationService service) => // iegūst konkrēta lietotāja ieradumus
 {
     var ieradumi = await service.IegutVisuAsync(lietotajaid);
 
     return Results.Ok(ieradumi);
 });
 
-app.MapGet("/ieradumi/{id:guid}", async (Guid id, IeradumuAppicationService service) =>//iegūst ieradumu pēc tā id
+app.MapGet("/ieradumi/{id:guid}", async (Guid id, IeradumuApplicationService service) =>//iegūst ieradumu pēc tā id
 {
     try
     {
@@ -40,7 +40,7 @@ app.MapGet("/ieradumi/{id:guid}", async (Guid id, IeradumuAppicationService serv
     }
 });
 
-app.MapPost("/Ieradumi", async (IzveidotIeradumuPieprasijumu pieprasijums, IeradumuAppicationService service) =>
+app.MapPost("/Ieradumi", async (IzveidotIeradumuPieprasijumu pieprasijums, IeradumuApplicationService service) =>
 {
     try
     {
@@ -57,7 +57,7 @@ app.MapPost("/Ieradumi", async (IzveidotIeradumuPieprasijumu pieprasijums, Ierad
 app.MapPut("/ieradumi/{id:guid}", async (
     Guid id,
     LabotIeradumuPieprasijumu pieprasijums,
-    IeradumuAppicationService service) =>
+    IeradumuApplicationService service) =>
 {
     try
     {
@@ -75,7 +75,7 @@ app.MapPut("/ieradumi/{id:guid}", async (
 });
 
 app.MapPut("/ieradumi/{id:guid}/arhivet", async (
-    Guid id, IeradumuAppicationService service) =>
+    Guid id, IeradumuApplicationService service) =>
 {
     try
     {
@@ -88,4 +88,53 @@ app.MapPut("/ieradumi/{id:guid}/arhivet", async (
         return Results.NotFound("Ieradums nav atrasts");
     }
 });
+
+app.MapPost("/ieradumi/{id:guid}/izpildes", async (Guid id, AtzimetIzpildiPieprasijums pieprasijums, IeradumuApplicationService service) =>
+{
+    try
+    {
+        await service.AtzimetIzpildiAsync(id, pieprasijums.Datums);
+
+        return Results.Ok("Ieradums atzimets ka izpildits.");
+    }
+
+    catch (KeyNotFoundException)
+    {
+        return Results.NotFound("Ieradums nav atrasts");
+    }
+
+    catch (InvalidOperationException ex)
+    {
+        return Results.BadRequest(ex.Message);
+    }
+});
+
+app.MapGet("ieradumi/{id:guid}/izpildes", async (Guid id, IeradumuApplicationService service) =>
+{
+    try
+    {
+        var izpildes = await service.IegutIzpildesAsync(id);
+
+        return Results.Ok(izpildes);
+    }
+
+    catch (KeyNotFoundException)
+    {
+        return Results.NotFound("Ieradums nav atrasts");
+    }
+});
+
+app.MapPut("/ieradumi/{id:guid}/atjaunot", async (Guid id, IeradumuApplicationService service) =>
+{
+    try
+    {
+        await service.AtjaunotAsync(id);
+        return Results.Ok("Ieradums ir atjaunots");
+    }
+    catch (KeyNotFoundException)
+    {
+        return Results.NotFound("Ieradums nav atrasts");
+    }
+});
+
 app.Run();

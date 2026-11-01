@@ -1,3 +1,4 @@
+
 using IeradumuParvaldnieks.Domain.Entities;
 using IeradumuParvaldnieks.Domain.Enums;
 using IeradumuParvaldnieks.Services;
@@ -6,58 +7,75 @@ namespace IeradumuParvaldnieks
 {
     public partial class ArhivetieIeradumiPage : ContentPage
     {
-        private readonly IIeradumuService ieradumuService;
+        private readonly IeradumuApiService apiService;
 
-        public ArhivetieIeradumiPage()//lapa tikai ar arhivetiem ieradumiem
+        // Saņem API servisu no galvenās lapas
+        public ArhivetieIeradumiPage(IeradumuApiService apiService)
         {
             InitializeComponent();
-
-            ieradumuService = new IeradumuService(); //izveido servisu darbam ar ieradumu datiem
+            this.apiService = apiService;
         }
 
-        protected override async void OnAppearing() //katru reizi atverot lapu ielade arhivetos ieradumus
+        // Ielādē arhivētos ieradumus
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
 
-            List<Ieradums> visiIeradumi =//ielade visus saglabatos ieradumus
-                await ieradumuService.IeladetIeradumusAsync();
+            try
+            {
+                List<Ieradums> visiIeradumi =
+                    await apiService.IegutVisuAsync("user1");
 
-            const string lietotajaId = "user2";//pasreizejais lietotajaid, to var nomainit uz user1, paradisies citi ieradumi
+                List<Ieradums> arhivetieIeradumi =
+                    visiIeradumi
+                        .Where(i => i.Statuss == IeradumaStatuss.Arhivets)
+                        .ToList();
 
-            List<Ieradums> arhivetieIeradumi =//parada arhivetos ieradumus saraksta
-                visiIeradumi
-                    .Where(i => i.LietotajaId == lietotajaId && i.Statuss == IeradumaStatuss.Arhivets)
-                    .ToList();
-
-            ArhivetoIeradumuSaraksts.ItemsSource =
-                arhivetieIeradumi;
+                ArhivetoIeradumuSaraksts.ItemsSource =
+                    arhivetieIeradumi;
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlertAsync(
+                    "Kļūda",
+                    ex.Message,
+                    "OK");
+            }
         }
 
-        private async void Atjaunot_Clicked(object? sender, EventArgs e)//atjauno arhivetos ieradumus uz aktiviem
+        // Atjauno arhivētu ieradumu caur API
+        private async void Atjaunot_Clicked(object? sender, EventArgs e)
         {
             if (sender is not Button poga)
                 return;
 
-            Ieradums? ieradums = poga.CommandParameter as Ieradums;//panem ieradumu, kas piesaistits nospiestajai pogai
+            Ieradums? ieradums =
+                poga.CommandParameter as Ieradums;
 
             if (ieradums == null)
                 return;
 
-            List<Ieradums> visiIeradumi =//ielade visus ieradumus
-                await ieradumuService.IeladetIeradumusAsync();
-
-            Ieradums? saglabataisIeradums =//atrod ieradumu pec id
-                visiIeradumi.Find(i => i.Id == ieradums.Id);
-
-            if (saglabataisIeradums != null)
+            try
             {
-                saglabataisIeradums.Statuss = IeradumaStatuss.Aktivs;//maina arhiveta ieraduma statusu uz aktivs
-                saglabataisIeradums.Atjauninats = DateTime.Now;
+                // Atjauno ieradumu serverī
+                await apiService.AtjaunotAsync(ieradums.Id);
+
+                // Ielādē atjaunināto sarakstu
+                List<Ieradums> visiIeradumi =
+                    await apiService.IegutVisuAsync("user1");
+
+                ArhivetoIeradumuSaraksts.ItemsSource =
+                    visiIeradumi
+                        .Where(i => i.Statuss == IeradumaStatuss.Arhivets)
+                        .ToList();
             }
-
-            await ieradumuService.SaglabatIeradumusAsync(visiIeradumi);//saglaba izmainas
-
-            OnAppearing();//parlade arhiveto ieradumu sarakstu
+            catch (Exception ex)
+            {
+                await DisplayAlertAsync(
+                    "Kļūda",
+                    ex.Message,
+                    "OK");
+            }
         }
     }
 }
