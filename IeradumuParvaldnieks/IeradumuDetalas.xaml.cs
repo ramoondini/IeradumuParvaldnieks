@@ -8,7 +8,7 @@ namespace IeradumuParvaldnieks
 {
     public partial class IeradumaDetaljasPage : ContentPage // lapa kura tiek paradita viena ieraduma informacija
     {
-        private readonly Ieradums ieradums;//izveletais ieradums
+        private Ieradums ieradums;//izveletais ieradums
         private readonly IIeradumuService ieradumuService;//serviss darbam ar ieradumu datiem
 
         public IeradumaDetaljasPage(Ieradums ieradums)
@@ -25,6 +25,56 @@ namespace IeradumuParvaldnieks
                 ? "Šodien izpildīts"
                 : "Nav izpildīts šodien";
         }
+
+        protected override async void OnAppearing()
+        {
+            base.OnAppearing();// Ielādē ieraduma izpildes datus no API
+            try
+            {
+                var servisi = IPlatformApplication.Current?.Services;
+
+                if (servisi == null)
+                    return;
+
+                var apiService = servisi.GetRequiredService<IeradumuApiService>();
+
+                List<Ieradums> visiIeradumi = await apiService.IegutVisuAsync("user1");
+
+                Ieradums? atjauninataisIeradums = visiIeradumi.FirstOrDefault(i => i.Id == ieradums.Id);
+
+                if(atjauninataisIeradums == null)
+                {
+                    await DisplayAlertAsync(
+                        "Kļūda",
+                        "Ieradums nav atrast.",
+                        "OK");
+                    return;
+                }
+
+                ieradums = atjauninataisIeradums;
+                BindingContext = ieradums;
+
+                SodienLabel.Text = ieradums.IrPabeigts(DateTime.Today)
+                    ? "Šodien izpildīts"
+                    : "Nav izpildīts šodien";
+            }
+            catch(HttpRequestException)
+            {
+                await DisplayAlertAsync(
+                    "Kļūda",
+                    "Neizdevās sazināties ar API.",
+                    "OK");
+            }
+            catch (TaskCanceledException)
+            {
+                await DisplayAlertAsync(
+                    "Kļūda",
+                    "API serveris neatbild.",
+                    "OK");
+            }
+
+        }
+
 
 
         private async void Arhivet_Clicked(object? sender, EventArgs e)

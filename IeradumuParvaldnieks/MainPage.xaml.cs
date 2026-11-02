@@ -35,7 +35,6 @@ namespace IeradumuParvaldnieks
         {
             InitializeComponent();
 
-            ieradumuService = new IeradumuService();
         }
 
         protected override async void OnAppearing()//katru reizi kad lapa paradas ieradumi tiek ieladeti no jauna

@@ -24,10 +24,26 @@ namespace IeradumuParvaldnieks.Domain.TestData
                 }
             };
 
-            Ieradums TreninaIeradums = new Ieradums
+            Ieradums Majdzivnieks = new Ieradums
             {
                 Id = Guid.NewGuid(),
                 LietotajaId = "user2",
+                Nosaukums = "Pabarot mājdzīvnieku",
+                Apraksts = "Pabarot mājdzīvnieku katru dienu.",
+                Statuss = IeradumaStatuss.Aktivs,
+                Izveidots = DateTime.Now,
+                Atjauninats = DateTime.Now,
+                Atkartosana = new Atkartosana
+                {
+                    Biezums = AtkartojumaBiezums.KatruDienu,
+                    Intervals = 1
+                }
+            };
+
+            Ieradums TreninaIeradums = new Ieradums
+            {
+                Id = Guid.NewGuid(),
+                LietotajaId = "user1",
                 Nosaukums = "Vingrināties",
                 Apraksts = "Darīt vingrinājumus vismaz 30 minūtes.",
                 Statuss = IeradumaStatuss.Aktivs,

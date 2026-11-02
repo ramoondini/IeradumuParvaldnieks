@@ -15,14 +15,12 @@ namespace IeradumuParvaldnieks
         {
             InitializeComponent();
 
-            ieradumuService = new IeradumuService();
         }
 
         public IeradumaRedigesanaPage(Ieradums ieradums)//konstruktors esosa ieraduma redigesanai
         {
             InitializeComponent();
 
-            ieradumuService = new IeradumuService();
             redigejamaisIeradums = ieradums;
 
             Title = "Labot ieradumu";
@@ -59,6 +57,15 @@ namespace IeradumuParvaldnieks
                 await DisplayAlertAsync(
                     "Kļūda",
                     "Ievadi ieraduma nosaukumu.",
+                    "OK");
+                return;
+            }
+
+            if(nosaukums.Length > 100)
+            {
+                await DisplayAlertAsync(
+                    "Kļūda",
+                    "Ieraduma nosaukums nedrīkst pārsniegt 100 rakstzīmes.",
                     "OK");
                 return;
             }

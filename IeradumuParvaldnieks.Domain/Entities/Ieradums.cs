@@ -7,7 +7,23 @@ namespace IeradumuParvaldnieks.Domain.Entities
     {
         public Guid Id { get; set; } = Guid.NewGuid();
         public string LietotajaId { get; set; } = string.Empty;
-        public string Nosaukums { get; set; } = string.Empty;
+        private string nosaukums = string.Empty;
+        public string Nosaukums{
+            get => nosaukums;
+            set
+            {
+                if(string.IsNullOrWhiteSpace(value))//Nedrīkst būt tukšs vai tikai atstarpes
+                {
+                    throw new ArgumentException("Nosaukums nevar būt tukšs vai saturēt tikai atstarpes.");
+                }
+                if(value.Trim().Length > 100)//Nedrīkst pārsniegt 100 rakstzīmes
+                {
+                    throw new ArgumentException("Nosaukums nevar pārsniegt 100 rakstzīmes.");
+                }
+                nosaukums = value.Trim();
+            }
+        }
+
         public string? Apraksts { get; set; }
         public IeradumaStatuss Statuss { get; set; }
 
