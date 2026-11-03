@@ -116,8 +116,6 @@ Testēšanai tiek izmantots lietotājs `user1`. Autentifikācija šajā mājasda
 <img width="1919" height="1079" alt="Screenshot 2026-11-02 175746" src="https://github.com/user-attachments/assets/e72705a4-d4d9-42b4-98ed-d9ada29f3764" />
 <img width="1919" height="1079" alt="Screenshot 2026-11-03 155833" src="https://github.com/user-attachments/assets/9fbb1abe-eb12-4d8c-b26d-d8d48a87d98e" />
 <img width="1919" height="1079" alt="Screenshot 2026-11-03 155829" src="https://github.com/user-attachments/assets/5846a978-449f-4f38-a6c6-e8869361a861" />
-<img width="1286" height="563" alt="Screenshot 2026-11-03 144920" src="https://github.com/user-attachments/assets/cb8c5597-dab5-46f6-b55f-144f992257cf" />
-
 
 ## Izmantotie avoti
 
