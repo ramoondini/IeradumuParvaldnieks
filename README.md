@@ -107,7 +107,7 @@ Datu glabāšanai tiek izmantots `SqlIeradumuRepository`, kas darbojas ar SQL Se
 
 Iepriekš izmantotais `AtminasIeradumuRepository` ir saglabāts projektā, bet API datu glabāšanai vairs netiek izmantots.
 
-Testēšanai tiek izmantots lietotājs `user1`. Autentifikācija šajā mājasdarbā nav ieviesta.
+Testēšanai tiek izmantots lietotājs `user1`. Autentifikācija šajā projektā vēl nav ieviesta.
 
 ## Attēli
 
