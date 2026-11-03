@@ -9,7 +9,6 @@ namespace IeradumuParvaldnieks
     public partial class IeradumaRedigesanaPage : ContentPage //lapa jaunai ieraduma izveidei vai esosa ieraduma labosanai
     {
         private readonly Ieradums? redigejamaisIeradums;//ja ieradumu labo tad tas saglabajas seit
-        private readonly IIeradumuService ieradumuService;//serviss ieradumu ieladei un saglabasanai
 
         public IeradumaRedigesanaPage()//konstruktors jauna ieraduma veidosanai
         {

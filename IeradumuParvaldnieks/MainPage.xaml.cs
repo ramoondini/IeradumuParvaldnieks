@@ -8,8 +8,6 @@ namespace IeradumuParvaldnieks
 {
     public partial class MainPage : ContentPage//galvena lapa, kur tiek paraditi visi aktivie ieradumi
     {
-        private readonly IIeradumuService ieradumuService;//serviss ieradumu ieladei un saglabasanai
-
         private List<Ieradums> visiIeradumi = new();//visi ieladetie ieradumi
 
         private async void Arhivetie_Clicked(object? sender, EventArgs e)//atver arhiveto ieradumu lapu
@@ -50,14 +48,14 @@ namespace IeradumuParvaldnieks
             {
                 const string lietotajaId = "user1";
 
-                var servisi = Handler?.MauiContext?.Services;
+                var servisi = IPlatformApplication.Current?.Services;
 
                 if (servisi == null)
                     return;
 
                 var apiService = servisi.GetRequiredService<IeradumuApiService>();
 
-                visiIeradumi = await apiService.IegutVisuAsync(lietotajaId);
+                var visiIeradumi = await apiService.IegutVisuAsync(lietotajaId);
 
                 List<IeradumsSarakstaModelis> aktivieIeradumi = visiIeradumi.Where(i => i.LietotajaId == lietotajaId && i.Statuss == IeradumaStatuss.Aktivs).Select(i => new IeradumsSarakstaModelis(i)).ToList();
 

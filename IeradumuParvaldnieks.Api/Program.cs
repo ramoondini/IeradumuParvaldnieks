@@ -2,12 +2,19 @@ using IeradumuParvaldnieks.Application.Interfaces;
 using IeradumuParvaldnieks.Application.Services;
 using IeradumuParvaldnieks.Infrastructure.Repositories;
 using IeradumuParvaldnieks.Api.Models;
+using IeradumuParvaldnieks.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();// OpenAPI atbalsts
 
-builder.Services.AddSingleton<IIeradumuRepository, AtminasIeradumuRepository>();//Ieradumu Glabātuve
+string savienojums = builder.Configuration//Iegūst datubāzes savienojuma adresi
+    .GetConnectionString("IeradumuDatubaze")
+    ?? throw new InvalidOperationException("Datubāzes savienojums nav atrasts");
+
+builder.Services.AddDbContext<IeradumuDbContext>(options => options.UseSqlServer(savienojums));//Reģistrē SQL Server datubāzes kontekstu
+builder.Services.AddScoped<IIeradumuRepository, SqlIeradumuRepository>();//Reģistrē ieradumu repozitoriju
 builder.Services.AddScoped<IeradumuApplicationService>();//Ieradumu servisi
 
 var app = builder.Build();
