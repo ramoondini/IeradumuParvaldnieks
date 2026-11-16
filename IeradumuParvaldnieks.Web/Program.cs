@@ -8,9 +8,9 @@ builder.Services.AddControllersWithViews();
 //Serviss ieradumu ieladei no API
 builder.Services.AddScoped<IeradumuApiService>();
 
-builder.Services.AddHttpClient("IeradumiApi", client =>
+builder.Services.AddHttpClient("IeradumuApi", client =>
 {
-    client.BaseAddress = new Uri("http://localhost:7239/");
+    client.BaseAddress = new Uri("https://localhost:7239/");
 });
 
 var app = builder.Build();

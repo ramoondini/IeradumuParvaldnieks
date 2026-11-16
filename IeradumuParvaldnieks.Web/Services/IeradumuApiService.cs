@@ -9,7 +9,7 @@ namespace IeradumuParvaldnieks.Web.Services
 
         public IeradumuApiService(IHttpClientFactory factory) // Iegust savienojumu ar API
         {
-            httpClient = factory.CreateClient("IeradumiApi");
+            httpClient = factory.CreateClient("IeradumuApi");
         }
 
         //Ielade lietotaja ieradumus caur API
