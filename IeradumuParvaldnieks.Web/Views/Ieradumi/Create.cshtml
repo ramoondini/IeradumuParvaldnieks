@@ -1,0 +1,73 @@
+﻿@model IeradumuParvaldnieks.Web.Models.IeradumaIzveidesModelis
+@using IeradumuParvaldnieks.Domain.Enums
+
+@{
+    ViewData["Title"] = "Jauns ieradums";
+}
+
+<link rel="stylesheet" href="~/css/ieradumi.css" asp-append-version="true" />
+
+<div class="habit-ui habit-ui--create">
+    <a asp-controller="Ieradumi" asp-action="Index" class="habit-back"><span aria-hidden="true">←</span> Atpakaļ uz ieradumiem</a>
+
+    <div class="habit-inner-heading">
+        <span class="habit-section-heading__eyebrow">TAVS JAUNAIS SĀKUMS</span>
+        <h1>Izveido jaunu <em>ieradumu.</em></h1>
+        <p>Lielas pārmaiņas sākas ar nelielām, regulārām darbībām.</p>
+    </div>
+
+    <div class="habit-form-grid">
+        <section class="habit-form-card" aria-labelledby="create-form-heading">
+            <div class="habit-form-card__header">
+                <div class="habit-form-card__icon" aria-hidden="true">✳</div>
+                <div>
+                    <h2 id="create-form-heading">Ieraduma informācija</h2>
+                    <p>Aizpildi laukus, lai pievienotu jaunu ieradumu savam sarakstam.</p>
+                </div>
+            </div>
+
+            <form asp-controller="Ieradumi" asp-action="Create" method="post" class="habit-form">
+                <div asp-validation-summary="All" class="habit-validation-summary" role="alert"></div>
+
+                <div class="habit-form-group">
+                    <label asp-for="Nosaukums" class="habit-label">Ieraduma nosaukums <span aria-hidden="true">*</span></label>
+                    <input asp-for="Nosaukums" class="habit-input" placeholder="Piemēram, lasīt 20 minūtes" autocomplete="off" />
+                    <span asp-validation-for="Nosaukums" class="habit-validation-message"></span>
+                    <p class="habit-field-hint">Izvēlies īsu un skaidru nosaukumu.</p>
+                </div>
+
+                <div class="habit-form-group">
+                    <label asp-for="Apraksts" class="habit-label">Apraksts <span class="habit-optional">Neobligāti</span></label>
+                    <textarea asp-for="Apraksts" class="habit-input habit-textarea" rows="4" placeholder="Kāpēc šis ieradums tev ir svarīgs?"></textarea>
+                    <span asp-validation-for="Apraksts" class="habit-validation-message"></span>
+                </div>
+
+                <div class="habit-form-group">
+                    <label asp-for="Biezums" class="habit-label">Atkārtošanās biežums</label>
+                    <div class="habit-select-wrap">
+                        <select asp-for="Biezums"
+                                asp-items="Html.GetEnumSelectList<AtkartojumaBiezums>()"
+                                class="habit-input habit-select"></select>
+                    </div>
+                    <span asp-validation-for="Biezums" class="habit-validation-message"></span>
+                </div>
+
+                <div class="habit-form-actions">
+                    <button type="submit" class="habit-btn habit-btn--primary">Saglabāt ieradumu <span aria-hidden="true">→</span></button>
+                    <a asp-controller="Ieradumi" asp-action="Index" class="habit-btn habit-btn--ghost">Atcelt</a>
+                </div>
+            </form>
+        </section>
+
+        <aside class="habit-create-aside">
+            <div class="habit-create-aside__orbit" aria-hidden="true"><span>✳</span></div>
+            <span class="habit-create-aside__eyebrow">MAZS ATGĀDINĀJUMS</span>
+            <h2>Progress ir<br /><em>process.</em></h2>
+            <p>Nav jāsāk ar perfektu plānu. Izvēlies vienu darbību, ko vari atkārtot, un ļauj tai kļūt par daļu no savas ikdienas.</p>
+            <div class="habit-create-aside__foot">
+                <span class="habit-create-aside__foot-icon" aria-hidden="true">✦</span>
+                <span>Katrs sākums ir vērtīgs.</span>
+            </div>
+        </aside>
+    </div>
+</div>

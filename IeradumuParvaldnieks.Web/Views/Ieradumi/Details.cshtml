@@ -1,0 +1,62 @@
+﻿@model IeradumuParvaldnieks.Domain.Entities.Ieradums
+
+@{
+    ViewData["Title"] = "Ieraduma detaļas";
+    var pabeigts = Model.IrPabeigts(DateTime.Today);
+}
+
+<link rel="stylesheet" href="~/css/ieradumi.css" asp-append-version="true" />
+
+<div class="habit-ui habit-ui--detail">
+    <a asp-controller="Ieradumi" asp-action="Index" class="habit-back"><span aria-hidden="true">←</span> Atpakaļ uz ieradumiem</a>
+
+    <div class="habit-inner-heading">
+        <span class="habit-section-heading__eyebrow">IERADUMA PĀRSKATS</span>
+        <h1>Tavs ieradums <span aria-hidden="true">✳</span></h1>
+        <p>Vienuviet visa svarīgākā informācija par izvēlēto ieradumu.</p>
+    </div>
+
+    <div class="habit-detail-grid">
+        <section class="habit-detail-main" aria-labelledby="detail-title">
+            <div class="habit-detail-main__top">
+                <span class="habit-detail-main__icon" aria-hidden="true">✦</span>
+                <span class="habit-pill @(pabeigts ? "habit-pill--done" : "habit-pill--pending")">
+                    <span class="habit-pill__dot" aria-hidden="true"></span>
+                    @(pabeigts ? "Šodien izpildīts" : "Šodien nav izpildīts")
+                </span>
+            </div>
+            <span class="habit-detail-label">IERADUMA NOSAUKUMS</span>
+            <h2 id="detail-title">@Model.Nosaukums</h2>
+            <div class="habit-detail-divider"></div>
+            <div class="habit-detail-information">
+                <div class="habit-detail-info-item">
+                    <span class="habit-detail-info-item__icon" aria-hidden="true">≡</span>
+                    <div>
+                        <h3>Apraksts</h3>
+                        <p>@(string.IsNullOrWhiteSpace(Model.Apraksts) ? "Šim ieradumam apraksts nav pievienots." : Model.Apraksts)</p>
+                    </div>
+                </div>
+                <div class="habit-detail-info-item">
+                    <span class="habit-detail-info-item__icon" aria-hidden="true">◈</span>
+                    <div>
+                        <h3>Ieraduma statuss</h3>
+                        <p>@Model.Statuss</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <aside class="habit-detail-side">
+            <div class="habit-detail-side__top">ŠODIENAS IZPILDE <span aria-hidden="true">↗</span></div>
+            <div class="habit-detail-side__illustration @(pabeigts ? "habit-detail-side__illustration--done" : "")" aria-hidden="true">
+                @(pabeigts ? "✓" : "○")
+            </div>
+            <h3>@(pabeigts ? "Lieliski paveikts!" : "Tavs nākamais solis")</h3>
+            <p>@(pabeigts ? "Šodien šis ieradums jau ir atzīmēts kā izpildīts." : "Šodien šis ieradums vēl nav atzīmēts kā izpildīts.")</p>
+            <span class="habit-detail-side__date">@DateTime.Today.ToString("dd.MM.yyyy")</span>
+        </aside>
+    </div>
+    <div class="habit-bottom-navigation">
+        <a asp-controller="Ieradumi" asp-action="Index" class="habit-btn habit-btn--primary"><span aria-hidden="true">←</span> Atgriezties pie saraksta</a>
+    </div>
+</div>

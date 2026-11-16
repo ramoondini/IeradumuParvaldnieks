@@ -1,51 +1,144 @@
-﻿
-@model List<IeradumuParvaldnieks.Domain.Entities.Ieradums>
+﻿@model List<IeradumuParvaldnieks.Domain.Entities.Ieradums>
 
 @{
     ViewData["Title"] = "Mani ieradumi";
-}
 
-<h1>Mani ieradumi</h1>
-<p>Šeit vari apskatīt savus aktīvos ieradumus.</p>
+    var sodien = DateTime.Today;
+    var kopa = Model?.Count ?? 0;
+    var izpilditi = 0;
 
-@if (ViewBag.Kluda != null)
-{
-    <div class="alert alert-danger">
-        @ViewBag.Kluda
-    </div>
-}
-else if (Model.Count == 0)
-{
-    <p>Tev vēl nav neviena aktīva ieraduma.</p>
-}
-else
-{
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Nosaukums</th>
-                <th>Apraksts</th>
-                <th>Šodienas statuss</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var ieradums in Model)
+    if (Model != null)
+    {
+        foreach (var ieradums in Model)
+        {
+            if (ieradums.IrPabeigts(sodien))
             {
-                <tr>
-                    <td>@ieradums.Nosaukums</td>
-                    <td>@ieradums.Apraksts</td>
-                    <td>
-                        @if (ieradums.IrPabeigts(DateTime.Today))
-                        {
-                            <span class="badge bg-success">Izpildīts</span>
-                        }
-                        else
-                        {
-                            <span class="badge bg-secondary">Nav izpildīts</span>
-                        }
-                    </td>
-                </tr>
+                izpilditi++;
             }
-        </tbody>
-    </table>
+        }
+    }
+
+    var atlikusie = kopa - izpilditi;
+    var progress = kopa == 0 ? 0 : (int)Math.Round(100.0 * izpilditi / kopa);
 }
+
+<link rel="stylesheet" href="~/css/ieradumi.css" asp-append-version="true" />
+
+<div class="habit-ui habit-ui--index">
+    <div class="habit-page-heading">
+        <div class="habit-page-heading__eyebrow"><span class="habit-sparkle">✦</span> TAVA IKDIENA, TAVS RITMS</div>
+        <span class="habit-today">@sodien.ToString("dd.MM.yyyy")</span>
+    </div>
+
+    <section class="habit-hero" aria-labelledby="habit-hero-title">
+        <div class="habit-hero__glow" aria-hidden="true"></div>
+        <div class="habit-hero__copy">
+            <span class="habit-hero__tag"><span class="habit-status-light"></span> TAVS PERSONĪGAIS PĀRSKATS</span>
+            <h1 id="habit-hero-title">Mazie soļi.<br /><em>Lieli rezultāti.</em></h1>
+            <p>Veido labus ieradumus savā tempā. Seko līdzi tam, ko esi paveicis šodien, un turpini virzīties uz priekšu.</p>
+            <a asp-controller="Ieradumi" asp-action="Create" class="habit-btn habit-btn--white">
+                <span class="habit-btn__plus" aria-hidden="true">+</span>
+                Pievienot ieradumu
+                <span aria-hidden="true">↗</span>
+            </a>
+        </div>
+        <div class="habit-hero__progress">
+            <div class="habit-progress-card">
+                <div class="habit-progress-card__top"><span>ŠODIENAS PROGRESS</span><span class="habit-progress-card__star" aria-hidden="true">✳</span></div>
+                <div class="habit-progress-ring" style="--progress: @(progress)%;" role="img" aria-label="Šodien izpildīti @progress procenti ieradumu">
+                    <div class="habit-progress-ring__middle">
+                        <strong>@progress%</strong>
+                        <span>pabeigts</span>
+                    </div>
+                </div>
+                <div class="habit-progress-card__bottom">
+                    <strong>@izpilditi no @kopa</strong>
+                    <span>ieradumiem šodien</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    @if (TempData["Paziņojums"] != null)
+    {
+        <div class="habit-alert habit-alert--success" role="status">
+            <span aria-hidden="true">✓</span>
+            <span>@TempData["Paziņojums"]</span>
+        </div>
+    }
+
+    @if (ViewBag.Kluda != null)
+    {
+        <div class="habit-alert habit-alert--error" role="alert">
+            <span aria-hidden="true">!</span>
+            <span>@ViewBag.Kluda</span>
+        </div>
+    }
+
+    <section class="habit-stats" aria-label="Ieradumu statistika">
+        <article class="habit-stat">
+            <div class="habit-stat__head"><span>Aktīvie ieradumi</span><span class="habit-stat__icon habit-stat__icon--purple" aria-hidden="true">▦</span></div>
+            <strong>@kopa</strong>
+            <div class="habit-stat__foot">Tavs ieradumu saraksts</div>
+        </article>
+        <article class="habit-stat">
+            <div class="habit-stat__head"><span>Šodien izpildīti</span><span class="habit-stat__icon habit-stat__icon--green" aria-hidden="true">✓</span></div>
+            <strong>@izpilditi</strong>
+            <div class="habit-stat__foot"><span class="habit-stat__tiny-dot habit-stat__tiny-dot--green"></span> Katrs solis ir svarīgs</div>
+        </article>
+        <article class="habit-stat">
+            <div class="habit-stat__head"><span>Vēl paveicami</span><span class="habit-stat__icon habit-stat__icon--orange" aria-hidden="true">◷</span></div>
+            <strong>@atlikusie</strong>
+            <div class="habit-stat__foot"><span class="habit-stat__tiny-dot habit-stat__tiny-dot--orange"></span> Turpini savā tempā</div>
+        </article>
+    </section>
+
+    <section class="habit-list-section" aria-labelledby="habit-list-title">
+        <div class="habit-section-heading">
+            <div>
+                <span class="habit-section-heading__eyebrow">TAVI IERADUMI</span>
+                <h2 id="habit-list-title">Ikdienas aktivitātes <span class="habit-counter">@kopa</span></h2>
+                <p>Viss, pie kā šobrīd strādā, vienuviet.</p>
+            </div>
+            <a asp-controller="Ieradumi" asp-action="Create" class="habit-text-link"><span aria-hidden="true">+</span> Jauns ieradums</a>
+        </div>
+
+        @if (ViewBag.Kluda == null && kopa == 0)
+        {
+            <div class="habit-empty">
+                <div class="habit-empty__symbol" aria-hidden="true">✳</div>
+                <h3>Sāc ar vienu mazu soli</h3>
+                <p>Tev vēl nav aktīvu ieradumu. Izveido pirmo, un tas parādīsies šeit.</p>
+                <a asp-controller="Ieradumi" asp-action="Create" class="habit-btn habit-btn--primary">Izveidot pirmo ieradumu <span aria-hidden="true">→</span></a>
+            </div>
+        }
+        else if (ViewBag.Kluda == null && Model != null)
+        {
+            <div class="habit-card-grid">
+                @foreach (var ieradums in Model)
+                {
+                    var pabeigts = ieradums.IrPabeigts(sodien);
+                    <article class="habit-card @(pabeigts ? "habit-card--complete" : "")">
+                        <div class="habit-card__top">
+                            <span class="habit-card__symbol @(pabeigts ? "habit-card__symbol--complete" : "")" aria-hidden="true">@(pabeigts ? "✓" : "✳")</span>
+                            <span class="habit-pill @(pabeigts ? "habit-pill--done" : "habit-pill--pending")">
+                                <span class="habit-pill__dot" aria-hidden="true"></span>
+                                @(pabeigts ? "Izpildīts" : "Nav izpildīts")
+                            </span>
+                        </div>
+                        <h3>@ieradums.Nosaukums</h3>
+                        <p>@(string.IsNullOrWhiteSpace(ieradums.Apraksts) ? "Šim ieradumam vēl nav pievienots apraksts." : ieradums.Apraksts)</p>
+                        <div class="habit-card__footer">
+                            <span>Šodienas statuss</span>
+                            <a asp-controller="Ieradumi"
+                               asp-action="Details"
+                               asp-route-id="@ieradums.Id"
+                               class="habit-card__link"
+                               aria-label="Skatīt ieraduma @ieradums.Nosaukums detaļas">Skatīt <span aria-hidden="true">↗</span></a>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+    </section>
+</div>
