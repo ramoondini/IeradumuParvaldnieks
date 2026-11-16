@@ -8,5 +8,6 @@
   <Project Path="IeradumuParvaldnieks.Domain/IeradumuParvaldnieks.Domain.csproj" />
   <Project Path="IeradumuParvaldnieks.Infrastructure/IeradumuParvaldnieks.Infrastructure.csproj" Id="2066fa59-eca4-4f56-8f7c-56d686232458" />
   <Project Path="IeradumuParvaldnieks.Shared/IeradumuParvaldnieks.Shared.csproj" />
+  <Project Path="IeradumuParvaldnieks.Web/IeradumuParvaldnieks.Web.csproj" Id="13cec591-04d1-4ab7-9a37-f1be7f81d927" />
   <Project Path="IeradumuParvaldnieks/IeradumuParvaldnieks.csproj" Id="482d2f94-5922-4183-927f-2eab0efbe442" />
 </Solution>
